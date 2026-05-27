@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jewelry Shop</title>
+    <style>
+        /* Basic clean layout */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        
+        /* Product Item Box */
+        .product-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Shopping Cart Box */
+        .cart-box {
+            background-color: #f9f9f9;
+            border: 2px solid #333;
+            padding: 15px;
+            margin-top: 30px;
+        }
+
+        .cart-item {
+            margin: 5px 0;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Jewelry Shop</h1>
+    <hr>
+
+    <h2>Our Items</h2>
+    <div id="shop-list">
+        </div>
+
+    <div class="cart-box">
+        <h2>Your Cart</h2>
+        <div id="cart-list">
+            <p>Your cart is empty.</p>
+        </div>
+        <h3>Total: $<span id="cart-total">0.00</span></h3>
+    </div>
+
+    <script>
+        // 1. Simple Database of Items
+        const products = [
+            { id: 1, name: "Gold Ring", price: 250 },
+            { id: 2, name: "Silver Necklace", price: 150 },
+            { id: 3, name: "Diamond Earrings", price: 500 }
+        ];
+
+        // 2. Simple Cart Array
+        let cart = [];
+
+        // 3. Display products on screen
+        function showProducts() {
+            const shopList = document.getElementById("shop-list");
+            shopList.innerHTML = ""; 
+
+            products.forEach(item => {
+                shopList.innerHTML += `
+                    <div class="product-item">
+                        <span><strong>${item.name}</strong> - $${item.price}</span>
+                        <button onclick="addToCart(${item.id})">Add to Cart</button>
+                    </div>
+                `;
+            });
+        }
+
+        // 4. Add item logic
+        function addToCart(id) {
+            const foundProduct = products.find(p => p.id === id);
+            const cartItem = cart.find(c => c.id === id);
+
+            if (cartItem) {
+                cartItem.qty += 1;
+            } else {
+                cart.push({ ...foundProduct, qty: 1 });
+            }
+
+            updateCart();
+        }
+
+        // 5. Update Cart Display and Total
+        function updateCart() {
+            const cartList = document.getElementById("cart-list");
+            const totalDisplay = document.getElementById("cart-total");
+
+            if (cart.length === 0) {
+                cartList.innerHTML = "<p>Your cart is empty.</p>";
+                totalDisplay.innerText = "0.00";
+                return;
+            }
+
+            cartList.innerHTML = ""; 
+            let totalCost = 0;
+
+            cart.forEach(item => {
+                totalCost += item.price * item.qty;
+                cartList.innerHTML += `
+                    <p class="cart-item">
+                        ${item.name} (x${item.qty}) - $${(item.price * item.qty)}
+                    </p>
+                `;
+            });
+
+            totalDisplay.innerText = totalCost;
+        }
+
+        // Start the shop on page load
+        showProducts();
+    </script>
+
+</body>
+</html>
