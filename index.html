@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Jewelry Shop</title>
+    <title>חנות תכשיטים פשוטה</title>
     <style>
-        /* Basic clean layout */
+        /* עיצוב בסיסי ונקי המיושר לימין */
         body {
             font-family: Arial, sans-serif;
             max-width: 600px;
             margin: 20px auto;
             padding: 20px;
+            line-height: 1.6;
         }
         
-        /* Product Item Box */
+        /* תיבת מוצר בחנות */
         .product-item {
             border: 1px solid #ccc;
             padding: 10px;
@@ -22,7 +23,7 @@
             align-items: center;
         }
 
-        /* Shopping Cart Box */
+        /* תיבת עגלת הקניות */
         .cart-box {
             background-color: #f9f9f9;
             border: 2px solid #333;
@@ -30,41 +31,63 @@
             margin-top: 30px;
         }
 
+        /* שורת פריט בתוך העגלה */
         .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin: 5px 0;
-            font-size: 0.95rem;
+            padding: 5px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        /* כפתור מחיקה אדום */
+        .btn-delete {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 3px 8px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .btn-delete:hover {
+            background-color: #cc0000;
         }
     </style>
 </head>
 <body>
 
-    <h1>Jewelry Shop</h1>
+    <h1>חנות התכשיטים שלי</h1>
     <hr>
 
-    <h2>Our Items</h2>
+    <!-- ממשק החנות (Shop GUI) -->
+    <h2>המוצרים שלנו</h2>
     <div id="shop-list">
-        </div>
+        <!-- המוצרים יוצגו כאן על ידי ג'אווה סקריפט -->
+    </div>
 
+    <!-- ממשק העגלה (Cart GUI) -->
     <div class="cart-box">
-        <h2>Your Cart</h2>
+        <h2>עגלת הקניות שלך</h2>
         <div id="cart-list">
-            <p>Your cart is empty.</p>
+            <p>העגלה שלך ריקה.</p>
         </div>
-        <h3>Total: $<span id="cart-total">0.00</span></h3>
+        <h3>סה"כ לתשלום: ₪<span id="cart-total">0.00</span></h3>
     </div>
 
     <script>
-        // 1. Simple Database of Items
+        // 1. מאגר הנתונים של התכשיטים (ניתן לשינוי בקלות)
         const products = [
-            { id: 1, name: "Gold Ring", price: 250 },
-            { id: 2, name: "Silver Necklace", price: 150 },
-            { id: 3, name: "Diamond Earrings", price: 500 }
+            { id: 1, name: "טבעת זהב", price: 250 },
+            { id: 2, name: "שרשרת כסף", price: 150 },
+            { id: 3, name: "עגילי יהלום", price: 500 }
         ];
 
-        // 2. Simple Cart Array
+        // 2. מערך העגלה הריק בהתחלה
         let cart = [];
 
-        // 3. Display products on screen
+        // 3. פונקציה להצגת המוצרים על המסך
         function showProducts() {
             const shopList = document.getElementById("shop-list");
             shopList.innerHTML = ""; 
@@ -72,34 +95,51 @@
             products.forEach(item => {
                 shopList.innerHTML += `
                     <div class="product-item">
-                        <span><strong>${item.name}</strong> - $${item.price}</span>
-                        <button onclick="addToCart(${item.id})">Add to Cart</button>
+                        <span><strong>${item.name}</strong> - ₪${item.price}</span>
+                        <button onclick="addToCart(${item.id})">הוסף לעגלה</button>
                     </div>
                 `;
             });
         }
 
-        // 4. Add item logic
+        // 4. פונקציה להוספת מוצר לעגלה (או הגדלת הכמות)
         function addToCart(id) {
             const foundProduct = products.find(p => p.id === id);
             const cartItem = cart.find(c => c.id === id);
 
             if (cartItem) {
-                cartItem.qty += 1;
+                cartItem.qty += 1; // הגדלת כמות אם כבר קיים
             } else {
-                cart.push({ ...foundProduct, qty: 1 });
+                cart.push({ ...foundProduct, qty: 1 }); // הוספה חדשה
             }
 
             updateCart();
         }
 
-        // 5. Update Cart Display and Total
+        // 5. פונקציה חדשה: הסרת מוצר מהעגלה / הפחתת כמות
+        function removeFromCart(id) {
+            const cartItem = cart.find(c => c.id === id);
+
+            if (cartItem) {
+                if (cartItem.qty > 1) {
+                    cartItem.qty -= 1; // אם יש יותר מאחד, נוריד פריט אחד
+                } else {
+                    // אם יש רק אחד, נסנן אותו החוצה מהמערך לחלוטין
+                    cart = cart.filter(c => c.id !== id);
+                }
+            }
+
+            updateCart(); // עדכון הממשק מחדש
+        }
+
+        // 6. עדכון תצוגת העגלה והסכום הכולל
         function updateCart() {
             const cartList = document.getElementById("cart-list");
             const totalDisplay = document.getElementById("cart-total");
 
+            // בדיקה אם העגלה ריקה
             if (cart.length === 0) {
-                cartList.innerHTML = "<p>Your cart is empty.</p>";
+                cartList.innerHTML = "<p>העגלה שלך ריקה.</p>";
                 totalDisplay.innerText = "0.00";
                 return;
             }
@@ -107,19 +147,23 @@
             cartList.innerHTML = ""; 
             let totalCost = 0;
 
+            // ריצה על פריטי העגלה ובניית ה-HTML עבורם
             cart.forEach(item => {
-                totalCost += item.price * item.qty;
+                const itemTotal = item.price * item.qty;
+                totalCost += itemTotal;
+                
                 cartList.innerHTML += `
-                    <p class="cart-item">
-                        ${item.name} (x${item.qty}) - $${(item.price * item.qty)}
-                    </p>
+                    <div class="cart-item">
+                        <span>${item.name} (כמות: ${item.qty}) - ₪${itemTotal}</span>
+                        <button class="btn-delete" onclick="removeFromCart(${item.id})">מחק</button>
+                    </div>
                 `;
             });
 
             totalDisplay.innerText = totalCost;
         }
 
-        // Start the shop on page load
+        // הפעלת הפונקציה הראשונית בעת טעינת הדף
         showProducts();
     </script>
 
